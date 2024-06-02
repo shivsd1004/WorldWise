@@ -8,27 +8,21 @@ import BackButton from "./BackButton";
 import useUrlPosition from "../hooks/useUrlPosition";
 import Message from "./Message";
 import Spinner from "./Spinner";
-import { useCities } from "../contexts/CitiesContext";
-function convertToEmoji(countryCode) {
-  const codePoints = countryCode
-    .toUpperCase()
-    .split("")
-    .map((char) => 127397 + char.charCodeAt());
-  return String.fromCodePoint(...codePoints);
-}
+import { useLocalCities } from "../contexts/LocalCitiesContext";
+import Flag from "./Flag.jsx";
 
 const BASE_URL = "https://api.bigdatacloud.net/data/reverse-geocode-client";
 
 function Form() {
   const [lat, lng] = useUrlPosition();
-  const { createCity, isLoading } = useCities();
+  const { createCity, isLoading } = useLocalCities();
 
   const navigate = useNavigate();
   const [cityName, setCityName] = useState("");
   const [country, setCountry] = useState("");
   const [date, setDate] = useState(new Date());
   const [notes, setNotes] = useState("");
-  const [emoji, setEmoji] = useState("");
+  const [countryCode, setCountryCode] = useState("");
   const [isLoadingGeocoding, setIsLoadingGeocoding] = useState();
   const [geocodingError, setGeocodingError] = useState();
 
@@ -50,7 +44,7 @@ function Form() {
             );
           setCityName(data.city || data.locality || "");
           setCountry(data.countryName);
-          setEmoji(convertToEmoji(data.countryCode));
+          setCountryCode(data.countryCode || "");
         } catch (err) {
           setGeocodingError(err.message);
         } finally {
@@ -68,7 +62,7 @@ function Form() {
     const newCity = {
       cityName,
       country,
-      emoji,
+      countryCode,
       date,
       notes,
       position: { lat, lng },
@@ -95,7 +89,9 @@ function Form() {
           onChange={(e) => setCityName(e.target.value)}
           value={cityName}
         />
-        <span className={styles.flag}>{emoji}</span>
+        <span className={styles.flag}>
+          <Flag countryCode={countryCode} />
+        </span>
       </div>
 
       <div className={styles.row}>
@@ -107,7 +103,7 @@ function Form() {
         /> */}
         <DatePicker
           onChange={(date) => setDate(date)}
-          selectd={date}
+          selected={date}
           dateFormat="dd/MM/yyyy"
         />
       </div>

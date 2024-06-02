@@ -3,9 +3,9 @@ import CityItem from "./CityItem";
 import Message from "./Message";
 
 import styles from "./CityList.module.css";
-import { useCities } from "../contexts/CitiesContext";
+import { useLocalCities } from "../contexts/LocalCitiesContext";
 function CityList() {
-  const { cities, isLoading } = useCities();
+  const { cities, isLoading } = useLocalCities();
   if (isLoading) return <Spinner />;
 
   if (!cities.length)
